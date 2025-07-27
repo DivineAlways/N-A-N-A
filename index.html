@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer's Hub - Web App Prototype</title>
+    <style>
+        /*
+        * Global CSS Reset and Base Styles
+        * Applies to all prototype screens for consistent wireframe appearance.
+        */
+        :root {
+            --primary-color: #007bff; /* A simple blue for links/buttons */
+            --secondary-color: #6c757d; /* Grey for borders, inactive states */
+            --background-color: #f8f9fa; /* Light background */
+            --surface-color: #ffffff; /* Card/panel background */
+            --text-color: #343a40; /* Dark text */
+            --border-color: #dee2e6; /* Light grey borders */
+            --spacing-unit: 1rem;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden; /* Prevent horizontal scroll from layout shifts */
+        }
+
+        /*
+        * Layout and Container Styles
+        * Defines basic structure for pages and content sections.
+        */
+        .prototype-wrapper {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column; /* Stack pages vertically initially */
+        }
+
+        .page {
+            display: none; /* Hide all pages by default */
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+            padding: var(--spacing-unit);
+            background-color: var(--background-color);
+            position: absolute; /* Allows pages to stack on top of each other */
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; /* Prevent interaction when hidden */
+        }
+
+        .page.active {
+            display: flex; /* Show the active page */
+            opacity: 1;
+            pointer-events: auto; /* Allow interaction when active */
+            position: relative; /* Take up space in the flow */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-unit);
+        }
+
+        /*
+        * Header and Navigation Styles
+        * For top bars and general navigation.
+        */
+        .header {
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--spacing-unit);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .header nav ul {
+            list-style: none;
+            display: flex;
+            gap: var(--spacing-unit);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .header nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .header nav ul li a:hover {
+            background-color: var(--border-color);
+        }
+
+        /*
+        * Section and Card Styles
+        * For organizing content within pages.
+        */
+        .content-section {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--spacing-unit) calc(var(--spacing-unit) * 1.5);
+            margin-bottom: var(--spacing-unit);
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-unit);
+            margin-top: var(--spacing-unit);
+        }
+
+        /*
+        * Typography and Placeholder Styles
+        * Basic text styling and placeholder indicators.
+        */
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: var(--spacing-unit);
+            color: var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+        }
+
+        p {
+            margin-bottom: 0.75rem;
+        }
+
+        .placeholder-text {
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+
+        /*
+        * Form Elements and Buttons
+        * Basic styling for inputs, textareas, and buttons.
+        */
+        .form-group {
+            margin-bottom: var(--spacing-unit);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: darken(var(--primary-color), 10%);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: darken(var(--secondary-color), 10%);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: var(--spacing-unit);
+            flex-wrap: wrap;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Specific styles for lists/tables where applicable */
+        .list-group {
+            list-style: none;
+            margin-top: var(--spacing-unit);
+        }
+        .list-group-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Sidebar/Main Content Layout (for dashboard, etc.) */
+        .page-layout {
+            display: flex;
+            flex-grow: 1;
+            flex-direction: column; /* Stack sidebar above main content on mobile */
+            gap: var(--spacing-unit);
+            padding: var(--spacing-unit);
+        }
+
+        .sidebar {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: var(--spacing-unit);
+            min-width: 200px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-unit);
+        }
+
+        /*
+        * Mobile Responsiveness (Media Queries)
+        * Adjusts layout for smaller and larger screens.
+        */
+        /* Small devices (phones, 600px and down) */
+        @media (max-width: 600px) {
+            .header nav ul {
+                width: 100%;
+                justify-content: space-around;
+                margin-top: var(--spacing-unit);
+            }
+
+            .header h1 {
+                width: 100%;
+                text-align: center;
+            }
+
+            .page-layout {
+                flex-direction: column; /* Ensure vertical stack */
+            }
+        }
+
+        /* Medium devices (tablets, 601px and up) */
+        @media (min-width: 601px) {
+            .header nav {
+                margin-left: auto; /* Push nav to the right */
+            }
+
+            .card-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .page-layout {
+                flex-direction: row; /* Sidebar and main content side-by-side */
+            }
+
+            .sidebar {
+                min-width: 220px;
+                max-width: 25%;
+                position: sticky;
+                top: calc(var(--spacing-unit) * 4); /* Below header */
+                align-self: flex-start; /* Stick to top within flex container */
+            }
+        }
+
+        /* Large devices (desktops, 1024px and up) */
+        @media (min-width: 1024px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 2.2rem;
+            }
+            h3 {
+                font-size: 1.6rem;
+            }
+            .container {
+                padding: var(--spacing-unit) calc(var(--spacing-unit) * 2);
+            }
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            padding: var(--spacing-unit);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-top: auto; /* Pushes footer to the bottom */
+        }
+    </style>
+</head>
+<body>
+    <!--
+    * Prototype Wrapper
+    * This div contains all simulated "pages" of the prototype.
+    * JavaScript will manage which page is visible using the 'active' class.
+    -->
+    <div class="prototype-wrapper">
+
+        <!--
+        * Start Screen (index.html equivalent)
+        * This is the initial view when the prototype loads.
+        * It provides an overview and links to all other sections.
+        -->
+        <section id="start-screen" class="page active">
+            <header class="header">
+                <h1>Freelancer's Hub</h1>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>Welcome to Freelancer's Hub Prototype</h2>
+                    <p>This interactive wireframe demonstrates the core features and user flow of the Freelancer's Hub web application.</p>
+                    <p>It is designed for independent contractors, freelancers, and small agencies to manage tasks, clients, and finances efficiently.</p>
+                    <h3>Project Goals:</h3>
+                    <ul>
+                        <li><span class="placeholder-text">Fully mobile responsive layout.</span></li>
+                        <li><span class="placeholder-text">Clear navigation and user flow.</span></li>
+                        <li><span class="placeholder-text">Semantic HTML structure for accessibility.</span></li>
+                        <li><span class="placeholder-text">No external frameworks or libraries.</span></li>
+                    </ul>
+                    <p>Explore the different sections of the application using the links below:</p>
+                </div>
+
+                <div class="content-section">
+                    <h3>Prototype Screens:</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4><a href="#dashboard-screen" class="page-link">Dashboard</a></h4>
+                            <p class="placeholder-text">Overview of tasks, projects, and quick stats.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#tasks-screen" class="page-link">Task Management</a></h4>
+                            <p class="placeholder-text">List and manage all your tasks.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#clients-screen" class="page-link">Client Management</a></h4>
+                            <p class="placeholder-text">Organize and view client details.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#invoicing-screen" class="page-link">Invoicing & Payments</a></h4>
+                            <p class="placeholder-text">Track invoices and payment statuses.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#reporting-screen" class="page-link">Reporting</a></h4>
+                            <p class="placeholder-text">View basic project and income reports.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#settings-screen" class="page-link">Settings</a></h4>
+                            <p class="placeholder-text">Configure application preferences.</p>
+                        </div>
+                        <div class="card">
+                            <h4><a href="#login-screen" class="page-link">Login / Signup</a></h4>
+                            <p class="placeholder-text">Simulated login page for user authentication.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!--
+            * Footer Section
+            * Contains general information and links to documentation.
+            -->
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+                <p><a href="https://example.com/documentation" target="_blank" style="color: inherit;">Documentation Link (Placeholder)</a></p>
+            </footer>
+        </section>
+
+        <!--
+        * Dashboard Screen
+        * Displays an overview of user's activities, tasks, and metrics.
+        -->
+        <section id="dashboard-screen" class="page">
+            <header class="header">
+                <h1>Dashboard</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <div class="container page-layout">
+                <!-- Sidebar Navigation/Quick Links -->
+                <aside class="sidebar content-section">
+                    <h3>Quick Actions</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="#tasks-screen" class="page-link">Add New Task</a></li>
+                        <li class="list-group-item"><a href="#clients-screen" class="page-link">Add New Client</a></li>
+                        <li class="list-group-item"><a href="#invoicing-screen" class="page-link">Create Invoice</a></li>
+                    </ul>
+                    <h3>My Projects</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="#task-detail-screen?project=proj1" class="page-link">Project Alpha</a></li>
+                        <li class="list-group-item"><a href="#task-detail-screen?project=proj2" class="page-link">Project Beta</a></li>
+                        <li class="list-group-item"><a href="#task-detail-screen?project=proj3" class="page-link">Project Gamma</a></li>
+                    </ul>
+                </aside>
+
+                <!-- Main Dashboard Content -->
+                <main class="main-content">
+                    <div class="content-section">
+                        <h2>Overview</h2>
+                        <div class="card-grid">
+                            <div class="card">
+                                <h3>Tasks Due Today</h3>
+                                <p class="placeholder-text">5 tasks</p>
+                                <a href="#tasks-screen" class="btn btn-secondary page-link">View Tasks</a>
+                            </div>
+                            <div class="card">
+                                <h3>Pending Invoices</h3>
+                                <p class="placeholder-text">$1,500.00</p>
+                                <a href="#invoicing-screen" class="btn btn-secondary page-link">View Invoices</a>
+                            </div>
+                            <div class="card">
+                                <h3>Active Clients</h3>
+                                <p class="placeholder-text">8 clients</p>
+                                <a href="#clients-screen" class="btn btn-secondary page-link">View Clients</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <h2>Upcoming Deadlines</h2>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span>Task: Design Homepage - <span class="placeholder-text">Project Alpha</span></span>
+                                <span>Due: 2023-11-15</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Task: Client Meeting - <span class="placeholder-text">Client A</span></span>
+                                <span>Due: 2023-11-16</span>
+                            </li>
+                            <li class="list-group-item">
+                                <span>Task: Invoice Client B - <span class="placeholder-text">Project Beta</span></span>
+                                <span>Due: 2023-11-18</span>
+                            </li>
+                        </ul>
+                    </div>
+                </main>
+            </div>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Task Management Screen
+        * Lists all tasks, with options to add/filter.
+        -->
+        <section id="tasks-screen" class="page">
+            <header class="header">
+                <h1>Task Management</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>Your Tasks</h2>
+                    <div class="btn-group">
+                        <a href="#task-detail-screen?new=true" class="btn page-link">Add New Task</a>
+                        <a href="#" class="btn btn-secondary">Filter Tasks</a>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Task: Develop Feature X</h3>
+                        <p class="placeholder-text">Project: Quantum Leap</p>
+                        <p class="placeholder-text">Due Date: 2023-11-20</p>
+                        <p class="placeholder-text">Status: In Progress</p>
+                        <a href="#task-detail-screen?id=task123" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                    <div class="card">
+                        <h3>Task: Prepare Q4 Report</h3>
+                        <p class="placeholder-text">Project: Internal Operations</p>
+                        <p class="placeholder-text">Due Date: 2023-12-05</p>
+                        <p class="placeholder-text">Status: Pending</p>
+                        <a href="#task-detail-screen?id=task124" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                    <div class="card">
+                        <h3>Task: Client Onboarding - New Client Inc.</h3>
+                        <p class="placeholder-text">Project: Client A Onboarding</p>
+                        <p class="placeholder-text">Due Date: 2023-11-15</p>
+                        <p class="placeholder-text">Status: Completed</p>
+                        <a href="#task-detail-screen?id=task125" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                    <div class="card">
+                        <h3>Task: Review design mockups</h3>
+                        <p class="placeholder-text">Project: Mobile App Redesign</p>
+                        <p class="placeholder-text">Due Date: 2023-11-22</p>
+                        <p class="placeholder-text">Status: To Do</p>
+                        <a href="#task-detail-screen?id=task126" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Task Detail Screen
+        * Displays detailed information about a specific task.
+        * Can also be used for "Add New Task" via query parameter.
+        -->
+        <section id="task-detail-screen" class="page">
+            <header class="header">
+                <h1>Task Detail</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2><span id="task-detail-title">Task: Placeholder Title</span></h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="taskName">Task Name</label>
+                            <input type="text" id="taskName" value="Develop Feature X" placeholder="e.g., Design Landing Page">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDescription">Description</label>
+                            <textarea id="taskDescription" placeholder="Detailed description of the task...">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskProject">Project</label>
+                            <input type="text" id="taskProject" value="Quantum Leap" placeholder="Associated Project">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDueDate">Due Date</label>
+                            <input type="date" id="taskDueDate" value="2023-11-20">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskStatus">Status</label>
+                            <select id="taskStatus">
+                                <option value="to_do">To Do</option>
+                                <option value="in_progress" selected>In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="on_hold">On Hold</option>
+                            </select>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn">Save Task</button>
+                            <a href="#tasks-screen" class="btn btn-secondary page-link">Cancel / Back to List</a>
+                            <button type="button" class="btn btn-secondary" style="background-color: #dc3545;">Delete Task</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Client Management Screen
+        * Displays a list of all managed clients.
+        -->
+        <section id="clients-screen" class="page">
+            <header class="header">
+                <h1>Client Management</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>Your Clients</h2>
+                    <div class="btn-group">
+                        <a href="#client-detail-screen?new=true" class="btn page-link">Add New Client</a>
+                        <a href="#" class="btn btn-secondary">Filter Clients</a>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Client A Solutions</h3>
+                        <p class="placeholder-text">Contact: John Doe (john.doe@clienta.com)</p>
+                        <p class="placeholder-text">Active Projects: 2</p>
+                        <a href="#client-detail-screen?id=client1" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                    <div class="card">
+                        <h3>Global Innovations Inc.</h3>
+                        <p class="placeholder-text">Contact: Jane Smith (jane.smith@global.com)</p>
+                        <p class="placeholder-text">Active Projects: 1</p>
+                        <a href="#client-detail-screen?id=client2" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                    <div class="card">
+                        <h3>Future Tech Labs</h3>
+                        <p class="placeholder-text">Contact: Peter Jones (p.jones@futuretech.net)</p>
+                        <p class="placeholder-text">Active Projects: 0</p>
+                        <a href="#client-detail-screen?id=client3" class="btn btn-secondary page-link">View Details</a>
+                    </div>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Client Detail Screen
+        * Displays detailed information about a specific client.
+        * Can also be used for "Add New Client".
+        -->
+        <section id="client-detail-screen" class="page">
+            <header class="header">
+                <h1>Client Detail</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2><span id="client-detail-name">Client: Placeholder Name</span></h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="clientName">Client Name</label>
+                            <input type="text" id="clientName" value="Client A Solutions" placeholder="e.g., Acme Corp">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPerson">Contact Person</label>
+                            <input type="text" id="contactPerson" value="John Doe" placeholder="e.g., Jane Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientEmail">Email</label>
+                            <input type="email" id="clientEmail" value="john.doe@clienta.com" placeholder="e.g., contact@client.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone">Phone</label>
+                            <input type="text" id="clientPhone" value="+1 (555) 123-4567" placeholder="e.g., +1 (123) 456-7890">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientNotes">Notes</label>
+                            <textarea id="clientNotes" placeholder="Any specific notes about the client...">
+Long-term client. Prefers email communication. Has 2 ongoing projects.</textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button type="submit" class="btn">Save Client</button>
+                            <a href="#clients-screen" class="btn btn-secondary page-link">Cancel / Back to List</a>
+                            <button type="button" class="btn btn-secondary" style="background-color: #dc3545;">Delete Client</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="content-section">
+                    <h3>Associated Projects</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span>Project Alpha - <span class="placeholder-text">Status: In Progress</span></span>
+                            <a href="#task-detail-screen?project=proj1" class="btn btn-secondary btn-small page-link">View Project</a>
+                        </li>
+                        <li class="list-group-item">
+                            <span>Project Zeta - <span class="placeholder-text">Status: Completed</span></span>
+                            <a href="#task-detail-screen?project=proj2" class="btn btn-secondary btn-small page-link">View Project</a>
+                        </li>
+                    </ul>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Invoicing & Payments Screen
+        * Lists invoices and their statuses.
+        -->
+        <section id="invoicing-screen" class="page">
+            <header class="header">
+                <h1>Invoicing & Payments</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>Your Invoices</h2>
+                    <div class="btn-group">
+                        <a href="#" class="btn">Create New Invoice</a>
+                        <a href="#" class="btn btn-secondary">Export Invoices</a>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Invoice #2023-001</h3>
+                        <p class="placeholder-text">Client: Client A Solutions</p>
+                        <p class="placeholder-text">Amount: $750.00</p>
+                        <p class="placeholder-text">Status: Paid (2023-10-28)</p>
+                        <a href="#" class="btn btn-secondary">View Invoice</a>
+                    </div>
+                    <div class="card">
+                        <h3>Invoice #2023-002</h3>
+                        <p class="placeholder-text">Client: Global Innovations Inc.</p>
+                        <p class="placeholder-text">Amount: $1,200.00</p>
+                        <p class="placeholder-text">Status: Pending</p>
+                        <a href="#" class="btn btn-secondary">View Invoice</a>
+                    </div>
+                    <div class="card">
+                        <h3>Invoice #2023-003</h3>
+                        <p class="placeholder-text">Client: Future Tech Labs</p>
+                        <p class="placeholder-text">Amount: $300.00</p>
+                        <p class="placeholder-text">Status: Overdue</p>
+                        <a href="#" class="btn btn-secondary">View Invoice</a>
+                    </div>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Reporting Screen
+        * Displays basic reports and analytics.
+        -->
+        <section id="reporting-screen" class="page">
+            <header class="header">
+                <h1>Reporting</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>Performance Reports</h2>
+                    <div class="btn-group">
+                        <a href="#" class="btn btn-secondary">Generate Custom Report</a>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Tasks Completion Rate</h3>
+                        <p class="placeholder-text">Visual placeholder for a chart (e.g., pie chart or bar graph).</p>
+                        <p class="placeholder-text">Overall: 75% completed</p>
+                    </div>
+                    <div class="card">
+                        <h3>Income by Month (Last 6 Months)</h3>
+                        <p class="placeholder-text">Visual placeholder for a line graph.</p>
+                        <p class="placeholder-text">Total: $5,500.00</p>
+                    </div>
+                    <div class="card">
+                        <h3>Project Status Distribution</h3>
+                        <p class="placeholder-text">Visual placeholder for a stacked bar chart.</p>
+                        <p class="placeholder-text">In Progress: 6, Completed: 8, Pending: 2</p>
+                    </div>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Settings Screen
+        * Allows users to configure application settings.
+        -->
+        <section id="settings-screen" class="page">
+            <header class="header">
+                <h1>Settings</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#dashboard-screen" class="page-link">Dashboard</a></li>
+                        <li><a href="#tasks-screen" class="page-link">Tasks</a></li>
+                        <li><a href="#clients-screen" class="page-link">Clients</a></li>
+                        <li><a href="#invoicing-screen" class="page-link">Invoicing</a></li>
+                        <li><a href="#settings-screen" class="page-link">Settings</a></li>
+                        <li><a href="#start-screen" class="page-link">Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content">
+                <div class="content-section">
+                    <h2>General Settings</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="appName">Application Name</label>
+                            <input type="text" id="appName" value="Freelancer's Hub" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="timezone">Timezone</label>
+                            <select id="timezone">
+                                <option value="utc">UTC</option>
+                                <option value="est" selected>EST (Eastern Standard Time)</option>
+                                <option value="pst">PST (Pacific Standard Time)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Default Currency</label>
+                            <select id="currency">
+                                <option value="usd" selected>USD ($)</option>
+                                <option value="eur">EUR (€)</option>
+                                <option value="gbp">GBP (£)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Save Settings</button>
+                    </form>
+                </div>
+
+                <div class="content-section">
+                    <h2>Profile Settings</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="userName">Your Name</label>
+                            <input type="text" id="userName" value="Prototype User">
+                        </div>
+                        <div class="form-group">
+                            <label for="userEmail">Email Address</label>
+                            <input type="email" id="userEmail" value="user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="oldPassword">Old Password</label>
+                            <input type="password" id="oldPassword" placeholder="Enter old password">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                        </div>
+                        <button type="submit" class="btn">Update Profile</button>
+                    </form>
+                </div>
+
+                <div class="content-section">
+                    <h2>Integrations</h2>
+                    <p class="placeholder-text">Placeholder for third-party integrations (e.g., payment gateways, calendar sync).</p>
+                    <button type="button" class="btn btn-secondary">Connect New Integration</button>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!--
+        * Login/Signup Screen
+        * A simple form for user authentication.
+        -->
+        <section id="login-screen" class="page">
+            <header class="header">
+                <h1>Login / Signup</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#start-screen" class="page-link">Back to Home</a></li>
+                    </ul>
+                </nav>
+            </header>
+            <main class="container main-content" style="max-width: 500px; margin-top: 50px;">
+                <div class="content-section">
+                    <h2>Account Access</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="********" required>
+                        </div>
+                        <button type="submit" class="btn">Log In</button>
+                    </form>
+                    <p style="margin-top: 1rem; text-align: center;">
+                        Don't have an account? <a href="#">Sign Up Now</a> (Placeholder)
+                    </p>
+                    <p style="margin-top: 0.5rem; text-align: center;">
+                        <a href="#">Forgot Password?</a> (Placeholder)
+                    </p>
+                </div>
+            </main>
+            <footer class="footer">
+                <p>&copy; 2023 Freelancer's Hub Prototype. All rights reserved.</p>
+            </footer>
+        </section>
+
+    </div> <!-- End of prototype-wrapper -->
+
+    <!--
+    * JavaScript for Page Navigation
+    * Handles showing and hiding different "pages" within the single HTML file.
+    * Uses URL hash for basic routing simulation.
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pages = document.querySelectorAll('.page');
+            const pageLinks = document.querySelectorAll('.page-link');
+
+            /**
+             * Shows the specified page and hides all others.
+             * Updates the URL hash to reflect the current page, simulating navigation.
+             * @param {string} pageId - The ID of the page to show (e.g., 'dashboard-screen').
+             */
+            function showPage(pageId) {
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                });
+
+                const targetPage = document.getElementById(pageId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    // Scroll to top of the new page
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            /**
+             * Handles clicks on navigation links.
+             * Prevents default anchor behavior and calls showPage.
+             */
+            pageLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault(); // Stop default link behavior
+
+                    const href = link.getAttribute('href');
+                    let pageId = '';
+
+                    // Extract page ID from href (e.g., '#dashboard-screen' or '#task-detail-screen?id=task123')
+                    const hashIndex = href.indexOf('#');
+                    if (hashIndex !== -1) {
+                        const hashPart = href.substring(hashIndex + 1);
+                        const queryIndex = hashPart.indexOf('?');
+                        pageId = queryIndex !== -1 ? hashPart.substring(0, queryIndex) : hashPart;
+                    }
+
+                    if (pageId) {
+                        // Update URL hash without causing a full page reload or scrolling issues
+                        // history.pushState({}, '', href); // More modern, but hashchange listener is simpler for this prototype
+                        window.location.hash = href;
+                        showPage(pageId);
+                    }
+                });
+            });
+
+            /**
+             * Handles initial page load and hash changes.
+             * Ensures the correct page is shown if a hash is present in the URL.
+             */
+            function handleHashChange() {
+                let hash = window.location.hash;
+                let pageId = 'start-screen'; // Default page
+
+                if (hash) {
+                    // Remove leading '#' and any query parameters
+                    const hashPart = hash.substring(1);
+                    const queryIndex = hashPart.indexOf('?');
+                    pageId = queryIndex !== -1 ? hashPart.substring(0, queryIndex) : hashPart;
+                }
+
+                // If the derived pageId doesn't exist, fall back to start-screen
+                if (!document.getElementById(pageId)) {
+                    pageId = 'start-screen';
+                }
+
+                showPage(pageId);
+
+                // --- Specific logic for Task/Client Detail screens based on query parameters ---
+                const currentPage = document.getElementById(pageId);
+                if (currentPage) {
+                    const currentHash = window.location.hash;
+                    const params = new URLSearchParams(currentHash.split('?')[1]);
+
+                    // Task Detail Screen Logic
+                    if (pageId === 'task-detail-screen') {
+                        const taskId = params.get('id');
+                        const isNew = params.get('new');
+                        const taskTitleElement = document.getElementById('task-detail-title');
+                        const taskNameInput = document.getElementById('taskName');
+                        const taskDescriptionInput = document.getElementById('taskDescription');
+                        const taskProjectInput = document.getElementById('taskProject');
+                        const taskDueDateInput = document.getElementById('taskDueDate');
+                        const taskStatusSelect = document.getElementById('taskStatus');
+
+                        if (isNew === 'true') {
+                            if (taskTitleElement) taskTitleElement.textContent = 'Add New Task';
+                            if (taskNameInput) taskNameInput.value = '';
+                            if (taskDescriptionInput) taskDescriptionInput.value = '';
+                            if (taskProjectInput) taskProjectInput.value = '';
+                            if (taskDueDateInput) taskDueDateInput.value = '';
+                            if (taskStatusSelect) taskStatusSelect.value = 'to_do';
+                        } else if (taskId) {
+                            // Simulate fetching task data
+                            const taskData = {
+                                'task123': { name: 'Develop Feature X', desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', project: 'Quantum Leap', dueDate: '2023-11-20', status: 'in_progress' },
+                                'task124': { name: 'Prepare Q4 Report', desc: 'Detailed report for Q4 financials.', project: 'Internal Operations', dueDate: '2023-12-05', status: 'pending' },
+                                'task125': { name: 'Client Onboarding - New Client Inc.', desc: 'Full onboarding process including contract and initial setup.', project: 'Client A Onboarding', dueDate: '2023-11-15', status: 'completed' },
+                                'task126': { name: 'Review design mockups', desc: 'Review high-fidelity mockups for feedback.', project: 'Mobile App Redesign', dueDate: '2023-11-22', status: 'to_do' }
+                            };
+                            const task = taskData[taskId] || { name: 'Task Not Found', desc: 'N/A', project: 'N/A', dueDate: '', status: 'to_do' };
+
+                            if (taskTitleElement) taskTitleElement.textContent = `Task: ${task.name}`;
+                            if (taskNameInput) taskNameInput.value = task.name;
+                            if (taskDescriptionInput) taskDescriptionInput.value = task.desc;
+                            if (taskProjectInput) taskProjectInput.value = task.project;
+                            if (taskDueDateInput) taskDueDateInput.value = task.dueDate;
+                            if (taskStatusSelect) taskStatusSelect.value = task.status;
+                        } else {
+                            // Default view if no specific task or 'new' param
+                            if (taskTitleElement) taskTitleElement.textContent = 'Task: Default Task View';
+                            if (taskNameInput) taskNameInput.value = 'Default Task';
+                            if (taskDescriptionInput) taskDescriptionInput.value = 'This is a default task description for demonstration.';
+                            if (taskProjectInput) taskProjectInput.value = 'Default Project';
+                            if (taskDueDateInput) taskDueDateInput.value = '2023-12-31';
+                            if (taskStatusSelect) taskStatusSelect.value = 'to_do';
+                        }
+                    }
+
+                    // Client Detail Screen Logic
+                    if (pageId === 'client-detail-screen') {
+                        const clientId = params.get('id');
+                        const isNew = params.get('new');
+                        const clientNameElement = document.getElementById('client-detail-name');
+                        const clientNameInput = document.getElementById('clientName');
+                        const contactPersonInput = document.getElementById('contactPerson');
+                        const clientEmailInput = document.getElementById('clientEmail');
+                        const clientPhoneInput = document.getElementById('clientPhone');
+                        const clientNotesTextarea = document.getElementById('clientNotes');
+
+                        if (isNew === 'true') {
+                            if (clientNameElement) clientNameElement.textContent = 'Add New Client';
+                            if (clientNameInput) clientNameInput.value = '';
+                            if (contactPersonInput) contactPersonInput.value = '';
+                            if (clientEmailInput) clientEmailInput.value = '';
+                            if (clientPhoneInput) clientPhoneInput.value = '';
+                            if (clientNotesTextarea) clientNotesTextarea.value = '';
+                        } else if (clientId) {
+                            // Simulate fetching client data
+                            const clientData = {
+                                'client1': { name: 'Client A Solutions', contact: 'John Doe', email: 'john.doe@clienta.com', phone: '+1 (555) 123-4567', notes: 'Long-term client. Prefers email communication. Has 2 ongoing projects.' },
+                                'client2': { name: 'Global Innovations Inc.', contact: 'Jane Smith', email: 'jane.smith@global.com', phone: '+1 (555) 987-6543', notes: 'New client, project in planning phase.' },
+                                'client3': { name: 'Future Tech Labs', contact: 'Peter Jones', email: 'p.jones@futuretech.net', phone: '+1 (555) 111-2222', notes: 'Previous client, no active projects currently.' }
+                            };
+                            const client = clientData[clientId] || { name: 'Client Not Found', contact: 'N/A', email: 'N/A', phone: 'N/A', notes: 'N/A' };
+
+                            if (clientNameElement) clientNameElement.textContent = `Client: ${client.name}`;
+                            if (clientNameInput) clientNameInput.value = client.name;
+                            if (contactPersonInput) contactPersonInput.value = client.contact;
+                            if (clientEmailInput) clientEmailInput.value = client.email;
+                            if (clientPhoneInput) clientPhoneInput.value = client.phone;
+                            if (clientNotesTextarea) clientNotesTextarea.value = client.notes;
+                        } else {
+                            // Default view if no specific client or 'new' param
+                            if (clientNameElement) clientNameElement.textContent = 'Client: Default Client View';
+                            if (clientNameInput) clientNameInput.value = 'Default Client Corp.';
+                            if (contactPersonInput) contactPersonInput.value = 'Default Contact';
+                            if (clientEmailInput) clientEmailInput.value = 'default@client.com';
+                            if (clientPhoneInput) clientPhoneInput.value = '+1 (000) 000-0000';
+                            if (clientNotesTextarea) clientNotesTextarea.value = 'This is a default client description for demonstration.';
+                        }
+                    }
+                }
+            }
+
+            // Listen for hash changes in the URL
+            window.addEventListener('hashchange', handleHashChange);
+
+            // Trigger on initial load
+            handleHashChange();
+        });
+    </script>
+</body>
+</html>
